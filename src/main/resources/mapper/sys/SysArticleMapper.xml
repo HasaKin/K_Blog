@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cy.sys.dao.SysArticleDao" >
+  
+  <update id="updateArticle">
+  	update article
+    <set >
+      <if test="title != null" >
+        title = #{title},
+      </if>
+      <if test="keywords != null" >
+        keywords = #{keywords},
+      </if>
+      <if test="desci != null" >
+        desci = #{desci},
+      </if>
+      <if test="pic != null" >
+        pic = #{pic},
+      </if>
+      <if test="click != null" >
+        click = #{click},
+      </if>
+      <if test="time != null" >
+        time = #{time},
+      </if>
+      <if test="catalogId != null" >
+        catalog_id = #{catalogId},
+      </if>
+      <if test="content != null" >
+        content = #{content},
+      </if>
+    </set>
+    where id = #{id}
+  </update> 
+  
+  <select id="selectObjects" resultType="com.cy.sys.entity.SysArticle">
+  	select * 
+  	from article
+  	order by id desc
+  </select>
+  
+  <insert id="insertObject"
+  		  parameterType="com.cy.sys.entity.SysArticle"
+  		  useGeneratedKeys="true"
+  		  keyProperty="id">
+  	insert into article (title, keywords,
+      desci, pic, time,
+      catalog_id, content)
+    values (#{title,jdbcType=VARCHAR}, #{keywords,jdbcType=VARCHAR},
+      #{desci,jdbcType=VARCHAR}, #{pic,jdbcType=VARCHAR}, #{time,jdbcType=TIMESTAMP},
+      #{catalogId,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateObject"
+  		parameterType="com.cy.sys.entity.SysArticle">
+  	  update article
+  	  <set>
+  	  	<if test="title!=null and title!=''">
+  	  	  title=#{title},
+  	  	</if>
+  	  	<if test="desci!=null and desci!=''">
+  	  	  desci=#{desci},
+  	  	</if>
+  	  	<if test="keywords!=null and keywords!=''">
+  	  	  keywords=#{keywords},
+  	  	</if>
+  	  	<if test="content!=null and content!=''">
+  	  	  content=#{content},
+  	  	</if>
+  	  	<if test="catelog_id!=null and catelog_id!=''">
+  	  	  catelog_id=#{catelog_id},
+  	  	</if>
+  	  </set>
+  	  where id=#{id}
+  </update>
+  <delete id="deleteObject">
+      delete from article
+      where id in <!-- (1,2,3,4) -->
+      <foreach collection="ids"
+               open="("
+               close=")"
+               separator=","
+               item="id">
+             #{id}
+      </foreach>
+  </delete>
+  <select id="selectObject"
+  		resultType="com.cy.sys.entity.SysArticle">
+  		   select 
+  		   id,title,keywords,desci,time,click,content
+  		   from article
+  		   where id=#{id}
+  </select>
+  <select id="findPageObjects"
+           resultType="com.cy.sys.entity.SysArticle">
+           select *
+           from article
+           <include refid="queryWhereId"/>
+           order by time desc
+           limit #{startIndex},#{pageSize}
+   </select>
+   <sql id="queryWhereId">
+       <where>
+         <if test="title!=null and title!=''">
+           title like concat("%",#{title},"%")       
+         </if>
+       </where>
+   </sql>
+   <select id="getRowCount"
+           resultType="int">
+           select count(*)
+           from article
+           <include refid="queryWhereId"/>
+   </select>
+</mapper>

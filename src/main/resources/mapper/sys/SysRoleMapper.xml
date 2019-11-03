@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mybatis中的映射文件:内部要定义sql映射 -->
+<mapper namespace="com.cy.sys.dao.SysRoleDao">
+
+   <!-- 查询所有角色信息 -->
+   <select id="findObjects"
+           resultType="com.cy.common.vo.CheckBox">
+          select id,name
+          from sys_roles
+   </select>
+   
+   <!-- 修改角色自身信息 -->
+   <update id="updateObject"
+           parameterType="com.cy.sys.entity.SysRole">
+          update sys_roles
+          set name=#{name},
+              note=#{note},
+              modifiedUser=#{modifiedUser},
+              modifiedTime=now()
+          where id=#{id}        
+   </update>
+   
+   <resultMap type="com.cy.sys.vo.SysRoleVo" 
+              id="sysRoleVo">
+       <!-- 建议ID直接手动映射(假如基于id执行关联查询
+                        此id的值可能不会映射到vo对象) -->
+       <id column="id" property="id"/>
+       <!-- one2many -->  
+       <collection property="menuIds"
+                   column="id"
+       select="com.cy.sys.dao.SysRoleMenuDao.findMenuIdsByRoleId"/>
+   </resultMap>
+   <!-- 基于角色id获取角色与其相关联的菜单id -->
+   <select id="findObjectById"
+           resultMap="sysRoleVo">
+         select id,name,note
+         from sys_roles
+         where id=#{id}
+   </select>
+   
+   
+   <insert id="insertObject"
+           parameterType="com.cy.sys.entity.SysRole"
+           useGeneratedKeys="true"
+           keyProperty="id">
+         insert into sys_roles 
+         (id,name,note,createdTime,modifiedTime,
+         createdUser,modifiedUser) 
+         values
+         (null,#{name},#{note},now(),now(),
+         #{createdUser},#{modifiedUser})
+           
+   </insert>
+   
+   <!-- 基于角色id删除角色自身信息 -->
+   <delete id="deleteObject"
+            parameterType="int">
+         delete 
+         from sys_roles
+         where id=#{id}        
+    </delete>
+   
+
+   <!-- sql标签用于定义映射元素中的sql共性,
+       其它元素用到此元素时,可以 include包含-->
+   <sql id="queryWhereId">
+       <where>
+         <if test="name!=null and name!=''">
+           name like concat("%",#{name},"%")       
+         </if>
+       </where>
+   </sql>
+  
+   <select id="findPageObjects"
+           resultType="com.cy.sys.entity.SysRole">
+           select *
+           from sys_roles
+           <include refid="queryWhereId"/>
+           limit #{startIndex},#{pageSize}
+   </select>
+
+   <select id="getRowCount"
+           resultType="int">
+           select count(*)
+           from sys_roles
+           <include refid="queryWhereId"/>
+   </select>
+   
+</mapper>

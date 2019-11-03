@@ -1,0 +1,108 @@
+<!-- 2018.11.22 新添加账号管理模块-->
+<body class="hold-transition register-page">
+	<div class="box-header">
+		<h3 class="box-title">安全管理</h3>
+	</div>
+	<div class="register-box">
+
+		<div class="register-box-body">
+			<p class="login-box-msg">The safety management</p>
+
+			<!-- 2018.11.22 新添加账号管理模块 -->
+			<form action="#" method="post">
+				<div class="form-group has-feedback">
+					<label for="olUpwd">Old Password</label> <input id="olUpwdId" required
+						type="password" minlength="6" maxlength="12" class="form-control"
+						placeholder="Old Password is between 6 and 12"> <span
+						class="glyphicon glyphicon-lock form-control-feedback"></span>
+				</div>
+				<div class="form-group has-feedback">
+					<label for="neUpwd">New password</label> <input id="neUpwdId"
+						required type="password" minlength="6" maxlength="12"
+						class="form-control"
+						placeholder="New Password is between 6 and 12"> <span
+						class="glyphicon glyphicon-lock form-control-feedback"></span>
+				</div>
+				<div class="form-group has-feedback">
+					<label for="neReUpwd">New Retype password</label> <input id="neReUpwdId"
+						required type="password" minlength="6" maxlength="12"
+						class="form-control"
+						placeholder="Retype password is between 6 and 12"> <span
+						class="glyphicon glyphicon-log-in form-control-feedback"></span>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-8">
+						<div class="checkbox icheck">
+							<label><a href="#"></a> </label>
+						</div>
+					</div>
+					<!-- /.col -->
+					<div class="col-xs-4">
+						<button type="button" class="btn btn-primary btn-block btn-flat">Save</button>
+					</div>
+					<!-- /.col -->
+				</div>
+			</form>
+			<!-- 2018.11.22 新添加账号管理模块 -->
+
+		</div>
+		<!-- /.form-box -->
+	</div>
+	<!-- /.register-box -->
+</body>
+
+<!-- jQuery 3 -->
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- iCheck -->
+<script src="plugins/iCheck/icheck.min.js"></script>
+!-- 2018.11.26 -->
+<script type="text/javascript">
+$(function(){
+	doGetParams();
+	//异步加载菜单信息,初始化页面菜单
+	$(".col-xs-4").on("click",".btn-flat",doSafe);
+});
+function doGetParams(){
+	var id;
+	$.getJSON("user/doGetPerson.do",function(result){
+		if(result.state==1){
+			id=result.data.id;
+			$("#mainContentId").data("id",id);
+			$("#mainContentId").data("password",result.data.password);
+		}
+	})
+}
+ function doSafe(){
+	//1.参数(表单数据)
+	var params=doGetEditFormData();
+	params.id=$("#mainContentId").data("id");
+	//2.url
+	var url="user/doUpdatePassword.do";
+	console.log("params",params);
+	$.post(url,params,function(result){
+		if(result.state==1){
+		   alert(result.message);
+		   $("#mainContentId").load("user/doSafeListUI.do");
+		}else{
+		   alert(result.message);
+		}
+	})
+}
+function doGetEditFormData(){
+	//1.获取角色自身信息
+	var password=$("#neUpwdId").val();
+	var olUpwd=$("#olUpwdId").val();
+	var neReUpwd=$("#neReUpwdId").val();
+	if(password!=neReUpwd){
+		alert("两次输入密码不一致!");
+	}
+	var params={
+		password:password
+	}
+	return params;
+}
+</script>
+<!-- 2018.11.26 -->

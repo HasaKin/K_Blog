@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mybatis中的映射文件:内部要定义sql映射 -->
+<mapper namespace="com.cy.sys.dao.SysUserDao">
+	
+       
+   <update id="updatePasswordById"> <!-- 2018.11.26 -->
+   		update sys_users
+   		set 
+   		password=#{password},
+   		salt=#{salt}
+   		where id=#{id}  
+   </update> 
+   <update id="updateById"> <!-- 2018.11.26 -->
+   		update sys_users
+   		set 
+   		email=#{email},
+   		mobile=#{mobile}
+   		where id=#{id}  
+   </update> 
+   
+   <select id="findUserByUserName"
+           resultType="com.cy.sys.entity.SysUser">
+      select *
+      from sys_users  
+      where username=#{username}
+   </select>
+   
+   
+   <!-- 更新用户自身信息 -->
+   <update id="updateObject" parameterType="com.cy.sys.entity.SysUser">
+     update sys_users
+     <set>
+       <if test="username!=null and username!=''">
+         username=#{username},
+       </if>
+       <if test="email!=null and email!=''">
+         email=#{email},
+       </if>
+        <if test="mobile!=null and mobile!=''">
+           mobile=#{mobile},
+        </if>
+        <if test="deptId!=null and deptId!=''">
+           deptId=#{deptId},
+        </if>
+
+        <if test="modifiedUser!=null and modifiedUser!=''">
+           modifiedUser=#{modifiedUser},
+        </if>
+             modifiedTime=now()
+       </set>
+          where id=#{id}      
+   </update>
+
+
+   <select id="findObjectById"
+               resultMap="sysUserMap">
+       select *
+       from sys_users
+       where id=#{id}            
+   </select>
+   
+   <insert id="insertObject"
+           parameterType="com.cy.sys.entity.SysUser"
+           useGeneratedKeys="true"
+           keyProperty="id">
+      insert into sys_users
+      (username,password,deptId,email,mobile,salt,valid,
+      createdTime,modifiedTime,createdUser,modifiedUser)
+      values
+      (#{username},#{password},#{deptId},#{email},#{mobile},#{salt},#{valid},
+      now(),now(),#{createdUser},#{modifiedUser})
+   </insert>
+   
+   <!-- 禁用或启用用户状态 -->
+   <update id="validById">
+       update sys_users
+       set valid=#{valid},
+           modifiedUser=#{modifiedUser},
+           modifiedTime=now()
+       where id=#{id}
+   </update>
+
+   <!-- 结果映射 
+         应用场景 
+     1)表中字段与pojo对象(或值对象)属性不一致
+     2)关联映射
+    -->
+   <resultMap type="com.cy.sys.vo.SysUserDeptResult"
+              id="sysUserMap">
+         <association property="sysDept"
+                      column="deptId"
+                      select="com.cy.sys.dao.SysDeptDao.findById">
+         </association>
+   </resultMap>
+   <select id="findPageObjects"
+           resultMap="sysUserMap">
+      select *
+      from sys_users
+      <include refid="queryWhereId"/>
+      order by createdTime desc
+      limit #{startIndex},#{pageSize}
+   </select>
+   <select id="getRowCount"
+           resultType="int">
+      select count(*)
+      from sys_users
+      <include refid="queryWhereId"/>
+   </select>
+   
+   <sql id="queryWhereId">
+        <where>
+          <if test="username!=null and username!=''">
+             username like concat("%",#{username},"%")
+          </if>
+        </where>
+   </sql>
+   
+</mapper>

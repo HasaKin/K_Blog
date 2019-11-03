@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style type="text/css">
+.table-inverse.table-striped tbody tr:nth-of-type(odd) {
+	background-color: rgba(255, 255, 255, .05)
+}
+.table {
+		border-collapse: collapse !important
+}
+.table {
+	width: 100%;
+	max-width: 100%;
+	margin-bottom: 1rem;
+	background-color: transparent
+}
+.table-sm td, .table-sm th {
+	padding: .3rem
+}
+.table-striped tbody tr:nth-of-type(odd) {
+	background-color: rgba(0, 0, 0, .05)
+}
+.table-active, .table-active>td, .table-active>th {
+	background-color: rgba(0, 0, 0, .075)
+}
+.table-secondary, .table-secondary>td, .table-secondary>th {
+	background-color: #dddfe2
+}
+.table-success, .table-success>td, .table-success>th {
+	background-color: #c3e6cb
+}
+.table-danger, .table-danger>td, .table-danger>th {
+	background-color: #f5c6cb
+}
+.table-warning, .table-warning>td, .table-warning>th {
+	background-color: #ffeeba
+}
+.table-info, .table-info>td, .table-info>th {
+	background-color: #bee5eb
+}
+.table-light, .table-light>td, .table-light>th {
+	background-color: #fdfdfe
+}
+</style>
+</head>
+<body>
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title">博客管理</h3>
+
+					<div class="box-tools">
+						<div class="input-group input-group-sm" style="width: 350px;">
+							<input type="text" name="table_search" id="searchNameId"
+								class="form-control pull-right" placeholder="用户名">
+							<div class="input-group-btn">
+								<button type="button" class="btn btn-default btn-search">
+									<i class="fa fa-search"></i>
+								</button>
+								<button type="button" class="btn btn-default btn-delete">删除</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body table-responsive no-padding">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th><input type="checkbox" id="checkAll">全选</th>
+								<th>序号</th>
+								<th>标题</th>
+								<th>发表时间</th>
+								<th>点击量</th>
+								<th>评论</th>
+								<th>编辑</th>
+							</tr>
+						</thead>
+
+						<tbody id="tbodyId">
+							<tr>
+								<td colspan="7">数据正在加载中...</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div id="pageId" class="box-footer clearfix"></div>
+				<!-- /.box-body -->
+				<div class="layui-layer layui-layer-page layui-layer-molv layer-xq"
+					id="artLayer" type="page" times="2" showtime="0" contype="object"
+					style="z-index: 59891016; width: 800px; height: 380px; top: 50px; left: 300px; display: none">
+					<div class="layui-layer-title" style="cursor: move;">论文详情</div>
+					<div class="layui-layer-content" style="height:450px; overflow-y:auto; overflow-x:auto;">
+					
+						<table class="table table-striped table-sm">
+							<tr class="table-active">
+								<th width="15%">ID</th>
+								<td  id="idId">
+									
+								</td>
+							</tr>
+							<tr class="table-secondary">
+								<th>标题</th>
+								<td id="titleId">
+								
+								</td>
+							</tr>
+							<tr class="table-success">
+								<th>关键字</th>
+								<td id="keywordsId">
+									
+								</td>
+							</tr>
+							<tr class="table-danger">
+								<th>简介</th>
+								<td id="desciId" width="85%">
+									
+								</td>
+							</tr>
+							<tr class="table-warning">
+								<th>发表时间</th>
+								<td id="timeId">
+									
+								</td>
+							</tr>
+							<tr class="table-info">
+								<th>点击量</th>
+								<td id="clickId">
+									
+								</td>
+							</tr>
+							<asp:GridView>
+							<tr class="table-light">
+								<th>内容</th>
+								<td id="contentId" width="85%">
+									
+								</td>
+							</tr>
+							</asp:GridView>
+						</table>
+					</div>
+					<span class="layui-layer-setwin"> <a
+						class="layui-layer-ico layui-layer-close layui-layer-close1 btn-cancel"></a>
+					</span>
+				</div>
+			</div>
+			<!-- /.box -->
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(function() {
+			//页面加载完成，在pageId位置异步page.html页面
+			$("#pageId").load("doPageUI.do", function() {
+				doGetObjects()
+			});
+			//页面搜索按钮事件注册
+			$(".input-group-btn")
+					.on("click", ".btn-search", doQueryObjects)
+					.on("click", ".btn-delete", doDeleteObjects);
+			$("#tbodyId")
+			.on("click", ".btn-pl", doLoadCommentObject)
+			.on("click", ".btn-bj", doLoadUpdateObject)
+			
+			$("#artLayer")
+      		.on("click",".btn-cancel",doHideLayer)
+			
+			
+			//设置thead中全选checkbox的状态监听
+			$("#checkAll").change(doChangeTBodyCheckBoxState);
+			//设置tbody中checkbox对象的状态监听
+			$("#tbodyId").on("change", ".cBox", doChangeTHeadCheckBoxState);
+			
+		});
+		
+		function doHideLayer() {
+			$("#artLayer").css("display", "none");
+		}
+		
+		function doLoadUpdateObject() {
+			console.log("222")
+		}
+		
+		function doLoadCommentObject() {
+			$(".col-xs-12").load("comm/doLoadCommentUI.do");
+		}
+		
+		function doInitSelectObjectData(result){
+			console.log("result.data:",result.data);
+			document.getElementById("idId").innerHTML=result.data.id;
+			document.getElementById("titleId").innerHTML=result.data.title;
+			document.getElementById("keywordsId").innerHTML=result.data.keywords;
+			document.getElementById("desciId").innerHTML=result.data.desci;
+			document.getElementById("timeId").innerHTML=result.data.localTime;
+			document.getElementById("clickId").innerHTML=result.data.click;
+			document.getElementById("contentId").innerHTML=result.data.content;
+			//console.log("我已经进来了")
+			
+			$("#artLayer").css("display", "block");
+		}
+		
+		//基于tbody中所有checkbox的状态修改thead中checkbox状态
+		function doChangeTHeadCheckBoxState() {
+			//1.获取tbody中所有checkbox对象状态"与"的结果
+			var state = true;
+			$("#tbodyId input[type='checkbox']").each(function() {
+				state = state && $(this).prop("checked");
+			})
+			//2.将步骤一的结果赋值影响thead中checkbox的状态
+			$("#checkAll").prop("checked", state);
+		}
+
+		//修改tbody中checkbox对象的状态
+		function doChangeTBodyCheckBoxState() {
+			//1.获取thead中全选checkbox的状态值
+			var state = $(this).prop("checked");
+			//2.将thead中全选checkbox的状态值赋值给
+			//tbody中的checkbox对象.
+			//方式1
+			/*  $("#tbodyId input[type='checkbox']")
+			 .each(function(){
+			   $(this).prop("checked",state);
+			 }); */
+			//方式2
+			$("#tbodyId input[type='checkbox']").prop("checked", state);
+		}
+
+		//执行删除操作
+		function doDeleteObjects() {
+			if (!confirm("确认删除吗"))
+				return;
+			//1.获取要删除的记录id
+			var idArray = doGetCheckedIds();
+			//console.log(idArray);
+			if (idArray.length == 0) {
+				alert("请先选择");
+				return;
+			}
+			//2.基于id发起异步请求,执行删除操作;
+			//2.1定义请求url
+			var url = "art/doDeleteObject.do";
+			//2.2定义请求参数
+			//说明:spring mvc不支持js中的数组
+			//进行参数传递时需要数组转换为字符串
+			var params = {
+				"ids" : idArray.toString()
+			};//1,2,3,4
+			//2.3发送post请求(特殊的ajax函数)
+			$.post(url, params, function(result) {
+				console.log("delete.result", result)
+				if (result.state == 1) {
+					alert(result.message);//undefined
+					doGetObjects();
+				} else {
+					alert(result.message);
+				}
+			}, "json");
+		}
+		//获取选中记录的id值,并将其存储到数组
+		function doGetCheckedIds() {
+			//1.创建数组
+			var array = [];//或者new Array();
+			//2.将选中记录存储到数组
+			//2.1获取所有tbody中的checkbox
+			$("#tbodyId input[type='checkbox']")
+			//2.2迭代所有checkbox(借助each函数)
+			.each(function() {//每发现一个元素就会执行这个匿名函数
+				if ($(this).prop("checked")) {//true为选中
+					//将选中的元素的值存储到数组
+					array.push($(this).val());
+				}
+			})
+			//3.返回数组
+			return array;
+		}
+		//执行查询操作
+		function doQueryObjects() {
+			//1.初始化页码值
+			$("#pageId").data("pageCurrent", 1);
+			//2.执行查询操作
+			doGetObjects();
+		}
+
+		//执行分页查询
+		function doGetObjects() {//异步加载日志信息
+			$("#checkAll").prop("checked", false);
+			//1.request url
+			var requestURL = "art/doFindPageObjects.do";
+			//2.request params
+			var pageCurrent = $("#pageId").data("pageCurrent");
+			if (!pageCurrent)
+				pageCurrent = 1;
+			var params = {
+				"pageCurrent" : pageCurrent
+			}
+			//获取查询时的用户输入的名字
+			var title = $("#searchNameId").val();
+			if (title)
+				params.title = title;
+			//3.send ajax request
+			$.ajax({//jquery中提供的ajax函数
+				url : requestURL,//服务端url
+				data : params,//向服务端传递的参数
+				success : function(result) {//result为服务端返回的结果
+					doHandleResponseResult(result);
+				}//readyState==4&&status==200
+			});//jquery中提供一个封装了ajax请求的ajax函数
+		}
+		//处理响应数据
+		function doHandleResponseResult(result) {
+			//console.log("result",result);//JsonResult
+			if (result.state == 1) {//OK
+				//1.table中tbody内容的初始化
+				doSetTableBodyRows(result.data.records);//当前页记录
+				//2.DIV中分页的信息的初始化 
+				doSetPagination(result.data);//pageObject
+			} else {//Error
+				alert(result.message);//exception
+			}
+		}
+		//初始化table中tbody内容
+		function doSetTableBodyRows(records) {
+			//1.获取tbody对象,并清空内容
+			var tBody = $("#tbodyId");
+			tBody.empty();//==tBody.innerHTML=""
+			//2.迭代记录,并将记录填充到tbody
+			for ( var i in records) {
+				//2.1创建tr对象
+				var tr = $("<tr></tr>");
+				//2.2创建td对象
+				var tds = doCreateTds(records[i]);
+				//2.3将td追加到tr中
+				tr.append(tds);
+				//2.4将tr追加到tbody中
+				tBody.append(tr);
+			}
+		}
+		//创建要呈现当前行记录的td元素对象
+		function doCreateTds(row) {
+			var tds = "<td><input type='checkbox' class='cBox' value="+row.id+"></td>"
+					+ "<td>"
+					+ row.id
+					+ "</td>"
+					+ "<td><a id='"+row.id+"' onclick='test(this)'>《"
+					+ row.title
+					+ "》<a/></td>"
+					+ "<td>"
+					+ new Date(row.time).toLocaleString()
+					+ "</td>"
+					+ "<td>"
+					+ row.click
+					+ "</td>"
+					+ "<td><button type='button' class='btn btn-outline-info btn-pl'>评论</button></td>"
+					+ "<td><button type='button' class='btn btn-outline-info btn-bj'>编辑</button></td>";
+			//console.log(row);
+			return tds;
+		}
+		function test(obj) {
+			//alert(obj.id);
+			var url = "art/doSelectObject.do";
+			var id = obj.id;
+			var params={"id":id};
+			$.post(url,params,function(result){
+				if (result.state == 1) {
+					console.log("result",result);
+					doInitSelectObjectData(result);
+				} else {
+					alert(result.message);
+				}
+			});
+		}
+	</script>
+</body>
+</html>
